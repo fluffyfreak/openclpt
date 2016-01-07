@@ -7,7 +7,12 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
+#ifdef __APPLE__
+#include <OpenCL/opencl.h>
+#include <OpenCL/cl_gl_ext.h>
+#else
 #include <CL/opencl.h>
+#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

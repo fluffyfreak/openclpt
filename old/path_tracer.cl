@@ -10,7 +10,8 @@
 // Maximum hit stack depth - needs to be big to avoid bias!
 // How much is enough depends on termination probability. 
 // For 0.95, 1024 is plenty.
-#define MAX_DEPTH 1024
+//#define MAX_DEPTH 1024
+#define MAX_DEPTH 16
 
 // Likelihood of continuing a ray. Big numbers means slower
 // sampling but usually more variance reduction per sample.
@@ -19,11 +20,12 @@
 #define CONTINUATION_PROBABILITY 0.95f;
 
 // Image size. Even numbers, please.
-#define IMAGE_WIDTH 400
-#define IMAGE_HEIGHT 400
+#define IMAGE_WIDTH 128
+#define IMAGE_HEIGHT 128
 
 // Samples per pixel
-#define SAMPLES 30000
+//#define SAMPLES 30000
+#define SAMPLES 2048
 
 // LFSR data
 typedef struct {

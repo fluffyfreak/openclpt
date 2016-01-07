@@ -12,6 +12,59 @@
 #include "util.h"
 #include "bmp_handler.h"
 
+// Translate an OpenCL return code to a string
+const char* ocl_status_to_string(cl_int status) {
+    switch (status) {
+        case CL_SUCCESS:                            return (const char*)"Success!"; 
+        case CL_DEVICE_NOT_FOUND:                   return (const char*)"Device not found.";
+        case CL_DEVICE_NOT_AVAILABLE:               return (const char*)"Device not available";
+        case CL_COMPILER_NOT_AVAILABLE:             return (const char*)"Compiler not available";
+        case CL_MEM_OBJECT_ALLOCATION_FAILURE:      return (const char*)"Memory object allocation failure";
+        case CL_OUT_OF_RESOURCES:                   return (const char*)"Out of resources";
+        case CL_OUT_OF_HOST_MEMORY:                 return (const char*)"Out of host memory";
+        case CL_PROFILING_INFO_NOT_AVAILABLE:       return (const char*)"Profiling information not available";
+        case CL_MEM_COPY_OVERLAP:                   return (const char*)"Memory copy overlap";
+        case CL_IMAGE_FORMAT_MISMATCH:              return (const char*)"Image format mismatch";
+        case CL_IMAGE_FORMAT_NOT_SUPPORTED:         return (const char*)"Image format not supported";
+        case CL_BUILD_PROGRAM_FAILURE:              return (const char*)"Program build failure";
+        case CL_MAP_FAILURE:                        return (const char*)"Map failure";
+        case CL_INVALID_VALUE:                      return (const char*)"Invalid value";
+        case CL_INVALID_DEVICE_TYPE:                return (const char*)"Invalid device type";
+        case CL_INVALID_PLATFORM:                   return (const char*)"Invalid platform";
+        case CL_INVALID_DEVICE:                     return (const char*)"Invalid device";
+        case CL_INVALID_CONTEXT:                    return (const char*)"Invalid context";
+        case CL_INVALID_QUEUE_PROPERTIES:           return (const char*)"Invalid queue properties";
+        case CL_INVALID_COMMAND_QUEUE:              return (const char*)"Invalid command queue";
+        case CL_INVALID_HOST_PTR:                   return (const char*)"Invalid host pointer";
+        case CL_INVALID_MEM_OBJECT:                 return (const char*)"Invalid memory object";
+        case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:    return (const char*)"Invalid image format descriptor";
+        case CL_INVALID_IMAGE_SIZE:                 return (const char*)"Invalid image size";
+        case CL_INVALID_SAMPLER:                    return (const char*)"Invalid sampler";
+        case CL_INVALID_BINARY:                     return (const char*)"Invalid binary";
+        case CL_INVALID_BUILD_OPTIONS:              return (const char*)"Invalid build options";
+        case CL_INVALID_PROGRAM:                    return (const char*)"Invalid program";
+        case CL_INVALID_PROGRAM_EXECUTABLE:         return (const char*)"Invalid program executable";
+        case CL_INVALID_KERNEL_NAME:                return (const char*)"Invalid kernel name";
+        case CL_INVALID_KERNEL_DEFINITION:          return (const char*)"Invalid kernel definition";
+        case CL_INVALID_KERNEL:                     return (const char*)"Invalid kernel";
+        case CL_INVALID_ARG_INDEX:                  return (const char*)"Invalid argument index";
+        case CL_INVALID_ARG_VALUE:                  return (const char*)"Invalid argument value";
+        case CL_INVALID_ARG_SIZE:                   return (const char*)"Invalid argument size";
+        case CL_INVALID_KERNEL_ARGS:                return (const char*)"Invalid kernel arguments";
+        case CL_INVALID_WORK_DIMENSION:             return (const char*)"Invalid work dimension";
+        case CL_INVALID_WORK_GROUP_SIZE:            return (const char*)"Invalid work group size";
+        case CL_INVALID_WORK_ITEM_SIZE:             return (const char*)"Invalid work item size";
+        case CL_INVALID_GLOBAL_OFFSET:              return (const char*)"Invalid global offset";
+        case CL_INVALID_EVENT_WAIT_LIST:            return (const char*)"Invalid event wait list";
+        case CL_INVALID_EVENT:                      return (const char*)"Invalid event";
+        case CL_INVALID_OPERATION:                  return (const char*)"Invalid operation";
+        case CL_INVALID_GL_OBJECT:                  return (const char*)"Invalid OpenGL object";
+        case CL_INVALID_BUFFER_SIZE:                return (const char*)"Invalid buffer size";
+        case CL_INVALID_MIP_LEVEL:                  return (const char*)"Invalid mip-map level";
+        default: 									return (const char*)"Unknown";
+    }
+}
+
 // Read a file
 char *read_file(const char* name, size_t* length) {
     FILE *f = fopen(name, "r");
@@ -155,60 +208,6 @@ void* ocl_fetch_data(cl_command_queue command_queue, cl_mem buffer, size_t size)
 	clFinish(command_queue);
 	return data;
 }
-
-// Translate an OpenCL return code to a string
-const char* ocl_status_to_string(cl_int status) {
-    switch (status) {
-        case CL_SUCCESS:                            return (const char*)"Success!"; 
-        case CL_DEVICE_NOT_FOUND:                   return (const char*)"Device not found.";
-        case CL_DEVICE_NOT_AVAILABLE:               return (const char*)"Device not available";
-        case CL_COMPILER_NOT_AVAILABLE:             return (const char*)"Compiler not available";
-        case CL_MEM_OBJECT_ALLOCATION_FAILURE:      return (const char*)"Memory object allocation failure";
-        case CL_OUT_OF_RESOURCES:                   return (const char*)"Out of resources";
-        case CL_OUT_OF_HOST_MEMORY:                 return (const char*)"Out of host memory";
-        case CL_PROFILING_INFO_NOT_AVAILABLE:       return (const char*)"Profiling information not available";
-        case CL_MEM_COPY_OVERLAP:                   return (const char*)"Memory copy overlap";
-        case CL_IMAGE_FORMAT_MISMATCH:              return (const char*)"Image format mismatch";
-        case CL_IMAGE_FORMAT_NOT_SUPPORTED:         return (const char*)"Image format not supported";
-        case CL_BUILD_PROGRAM_FAILURE:              return (const char*)"Program build failure";
-        case CL_MAP_FAILURE:                        return (const char*)"Map failure";
-        case CL_INVALID_VALUE:                      return (const char*)"Invalid value";
-        case CL_INVALID_DEVICE_TYPE:                return (const char*)"Invalid device type";
-        case CL_INVALID_PLATFORM:                   return (const char*)"Invalid platform";
-        case CL_INVALID_DEVICE:                     return (const char*)"Invalid device";
-        case CL_INVALID_CONTEXT:                    return (const char*)"Invalid context";
-        case CL_INVALID_QUEUE_PROPERTIES:           return (const char*)"Invalid queue properties";
-        case CL_INVALID_COMMAND_QUEUE:              return (const char*)"Invalid command queue";
-        case CL_INVALID_HOST_PTR:                   return (const char*)"Invalid host pointer";
-        case CL_INVALID_MEM_OBJECT:                 return (const char*)"Invalid memory object";
-        case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:    return (const char*)"Invalid image format descriptor";
-        case CL_INVALID_IMAGE_SIZE:                 return (const char*)"Invalid image size";
-        case CL_INVALID_SAMPLER:                    return (const char*)"Invalid sampler";
-        case CL_INVALID_BINARY:                     return (const char*)"Invalid binary";
-        case CL_INVALID_BUILD_OPTIONS:              return (const char*)"Invalid build options";
-        case CL_INVALID_PROGRAM:                    return (const char*)"Invalid program";
-        case CL_INVALID_PROGRAM_EXECUTABLE:         return (const char*)"Invalid program executable";
-        case CL_INVALID_KERNEL_NAME:                return (const char*)"Invalid kernel name";
-        case CL_INVALID_KERNEL_DEFINITION:          return (const char*)"Invalid kernel definition";
-        case CL_INVALID_KERNEL:                     return (const char*)"Invalid kernel";
-        case CL_INVALID_ARG_INDEX:                  return (const char*)"Invalid argument index";
-        case CL_INVALID_ARG_VALUE:                  return (const char*)"Invalid argument value";
-        case CL_INVALID_ARG_SIZE:                   return (const char*)"Invalid argument size";
-        case CL_INVALID_KERNEL_ARGS:                return (const char*)"Invalid kernel arguments";
-        case CL_INVALID_WORK_DIMENSION:             return (const char*)"Invalid work dimension";
-        case CL_INVALID_WORK_GROUP_SIZE:            return (const char*)"Invalid work group size";
-        case CL_INVALID_WORK_ITEM_SIZE:             return (const char*)"Invalid work item size";
-        case CL_INVALID_GLOBAL_OFFSET:              return (const char*)"Invalid global offset";
-        case CL_INVALID_EVENT_WAIT_LIST:            return (const char*)"Invalid event wait list";
-        case CL_INVALID_EVENT:                      return (const char*)"Invalid event";
-        case CL_INVALID_OPERATION:                  return (const char*)"Invalid operation";
-        case CL_INVALID_GL_OBJECT:                  return (const char*)"Invalid OpenGL object";
-        case CL_INVALID_BUFFER_SIZE:                return (const char*)"Invalid buffer size";
-        case CL_INVALID_MIP_LEVEL:                  return (const char*)"Invalid mip-map level";
-        default: 									return (const char*)"Unknown";
-    }
-}
-
 // Get luminance from RGB
 float luminance(float r, float g, float b) {
     return 0.2126f * r + 0.7152f * g + 0.0722f * b;

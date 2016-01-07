@@ -15,14 +15,14 @@
 #define OUTPUT_PREFIX "cornell"
 
 // How many and which (counting from 0) frames to render
-#define FRAME_COUNT 90
+#define FRAME_COUNT 1
 #define FRAME_FIRST 0
-#define FRAME_LAST 89
+#define FRAME_LAST 0
 #define FRAME_STEP 1
 
 // Image size - must match the kernel, obviously
-#define IMAGE_WIDTH 400
-#define IMAGE_HEIGHT 400
+#define IMAGE_WIDTH 128
+#define IMAGE_HEIGHT 128
 
 // Brightness scale factor to make images bright or moody
 #define OUTPUT_BRIGHTNESS 7.5f
@@ -33,7 +33,12 @@
 #include <stdlib.h>
 
 // OpenCL includes
+#ifdef __APPLE__
+#include <OpenCL/opencl.h>
+#include <OpenCL/cl_gl_ext.h>
+#else
 #include <CL/opencl.h>
+#endif
 
 // Application includes
 #include "util.h"
