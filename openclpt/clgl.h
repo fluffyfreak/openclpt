@@ -33,7 +33,7 @@ void releaseGLBuffer(cl_mem buffer);
 cl_command_queue clCommandQueue();
 cl_context clContext();
 cl_program clProgramFromFile(char* fileName, char* defines);
-void clRunKernel(cl_kernel kernel, const int minWorkSize[3], const int workgroupSize[3]);
+void clRunKernel(cl_kernel kernel, const size_t minWorkSize[3], const size_t workgroupSize[3]);
 const char* errorToString(cl_int error);
 
 #endif

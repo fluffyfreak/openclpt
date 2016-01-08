@@ -324,10 +324,10 @@ void draw() {
 		acquireGLBuffer(tracer.renderBuffer[1]);
 
 		// Prepare to run some kernels
-		cl_int numPixels = WINDOW_WIDTH * WINDOW_HEIGHT;
+		size_t numPixels = WINDOW_WIDTH * WINDOW_HEIGHT;
 
-		cl_int workSize[3] = {numPixels, 0, 0};
-		cl_int workgroupSize[3] = {256, 0, 0};
+		size_t workSize[3] = {numPixels, 0, 0};
+		size_t workgroupSize[3] = {256, 0, 0};
 
 		// Send scene
 		if(scene.onDevice == false) {
