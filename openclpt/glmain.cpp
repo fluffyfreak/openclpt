@@ -642,7 +642,11 @@ void handleKeypress(unsigned char k, int x, int y) {
 
 // Set things up and run
 int main(int argc, char** argv) {
-	WINDOW_WIDTH = atoi(argv[1]);
+  if(argc != 8) {
+    printf("Missing arguments. See README for details.\n");
+    exit(-1);
+  }
+  WINDOW_WIDTH = atoi(argv[1]);
 	WINDOW_HEIGHT = atoi(argv[2]);
 	int gridExtent = atoi(argv[3]);
 	char* sceneFile = argv[4];
@@ -650,9 +654,7 @@ int main(int argc, char** argv) {
 	samplesPerCall = atoi(argv[6]);
 	char* camFileName = argv[7];
 
-	if(argc != 8) {
-		printf("Missing arguments. See README for details.\n");
-	}
+	
 
 	printf(
 		"Initializing:\n%dx%d window\nGrid extent %d\nScene %s\nMaterial library %s\nSamples per call %d\nCamera %s\n", 
