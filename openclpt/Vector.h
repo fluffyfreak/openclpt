@@ -7,8 +7,17 @@
 #include <math.h>
 
 // GL includes
-#include <GL/glew.h>
-#include <GL/glut.h>
+#ifdef __APPLE__
+  #include <OpenGL/gl3.h>
+  #include <OpenGL/glu.h> 
+  #include <GLUT/glut.h>
+  #include <OpenGL/CGLCurrent.h>
+  #include <OpenGL/CGLTypes.h>
+  #include <OpenGL/CGLDevice.h>
+#else
+  #include <GL/glew.h>
+  #include <GL/freeglut.h>
+#endif
 
 #define PI 3.14159265f
 

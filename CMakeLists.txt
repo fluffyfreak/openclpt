@@ -1,55 +1,25 @@
-# Required for statically linking the MSVC runtime
-set(CMAKE_USER_MAKE_RULES_OVERRIDE
-   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
-set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX
-   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
-
 cmake_minimum_required  (VERSION 2.8)
 
-set(app_name Renderer)
+set(app_name openclpt)
 project(${app_name})
-include(GenerateExportHeader)
-include(cmake/defaults.cmake)
-
 
 #the FILE GLOB commands create lists of files according to the regex and then
 #put them into the variable
 #it is like set(Sources but using patterns
-FILE(GLOB LIBPNG_SOURCE source/renderlib/libpng/*.c)
-FILE(GLOB LIBPNG_HEADERS source/renderlib/libpng/*.h)
-FILE(GLOB SOIL_SOURCE source/renderlib/soil/*.c)
-FILE(GLOB SOIL_HEADERS source/renderlib/soil/*.h)
-FILE(GLOB RENDERLIB_SOURCE source/renderlib/*.*)
-#FILE(GLOB RENDERLIB_HEADERS source/renderlib/*.h*)
-FILE(GLOB MAIN_SOURCE source/*.*)
-FILE(GLOB OVR_SOURCE ovr_code/*.cpp)
-FILE(GLOB OVR_HEADERS ovr_code/*.h)
-#FILE(GLOB MAIN_HEADERS source/*.h*)
-FILE(GLOB PLATFORM_SOURCE source/PlatformClasses/*.*)
-#FILE(GLOB PLATFORM_HEADERS source/PlatformClasses/*.h*)
-FILE(GLOB SHADERS shaders/*.*)
+FILE(GLOB MAIN_SOURCE openclpt/*.cpp)
+FILE(GLOB MAIN_HEADERS openclpt/*.h)
 
 
 set(SOURCES
-   main.cpp
-   ${RENDERLIB_SOURCE}
    ${MAIN_SOURCE}
-   ${PLATFORM_SOURCE}
-   ${OVR_SOURCE}
-   ${LIBPNG_SOURCE}
-   ${SOIL_SOURCE}
 )
 
 
 set(HEADERS
-# source/renderlib/vmath.hpp
-  source/renderlib/string_util/win32_debug_buffer.h
-#  ${RENDERLIB_HEADERS}
-#  ${MAIN_HEADERS}
-#  ${PLATFORM_HEADERS}
-  ${LIBPNG_HEADERS}
-  ${SOIL_HEADERS}
-  ${OVR_HEADERS}
+  ${MAIN_HEADERS}
+)
+
+set(SHADERS
 )
 
 
@@ -57,46 +27,7 @@ set(RESOURCES
 )
 
 set(ASSETS
-    assets/tiles.png
-    assets/pond_xneg.png
-    assets/pond_xpos.png
-    assets/pond_ypos.png
-    assets/pond_yneg.png
-    assets/pond_zneg.png
-    assets/pond_zpos.png
    )
-
-###############################################################################
-###############################################################################
-###############################################################################
-#
-# From Oculus Minimal Example
-#
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWER )
-if(BUILD_TYPE_LOWER STREQUAL "debug")
-   set(RIFT_DEBUG 1)
-endif()
-
-###############################################################################
-#
-# Oculus VR SDK dependency 
-#
-set(OVR_DIR ${CMAKE_SOURCE_DIR}/libraries/OculusSDK/LibOVR)
-# Check for the existence of the LibOVR project.  If it's missing, the 
-# submodule probably hasn't been checked out.
-if (NOT(EXISTS ${OVR_DIR} AND IS_DIRECTORY ${OVR_DIR}))
-    message(FATAL_ERROR "Submodules seem to be missing.  Please make sure you check out with 'git clone --recursive' OR run 'git submodule init' and 'git submodule update' after checkout") 
-endif()
-
-# The primary SDK artifact, a static library for Oculus access 
-set(BUILD_SHARED_LIBS ON)
-add_subdirectory(libraries/OculusSDK/LibOVR)
-set(BUILD_SHARED_LIBS OFF)
-set_target_properties(OculusVR PROPERTIES FOLDER "3rdparty")
-list(APPEND EXTRA_LIBS OculusVR)
-
 
 ###############################################################################
 #
@@ -110,22 +41,22 @@ set_target_properties(glew PROPERTIES FOLDER "3rdparty")
 list(APPEND EXTRA_LIBS glew)
 
 # GLFW - Cross platform OpenGL window creation and input handling
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
-add_subdirectory(libraries/glfw)
-set_target_properties(glfw PROPERTIES FOLDER "3rdparty")
-list(APPEND EXTRA_LIBS glfw ${GLFW_LIBRARIES})
-MESSAGE(GLFW LIBRARIES)
-MESSAGE(${GLFW_LIBRARIES})
+#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
+#set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
+#set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
+#set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
+#add_subdirectory(libraries/glfw)
+#set_target_properties(glfw PROPERTIES FOLDER "3rdparty")
+#list(APPEND EXTRA_LIBS glfw ${GLFW_LIBRARIES})
+#MESSAGE(GLFW LIBRARIES)
+#MESSAGE(${GLFW_LIBRARIES})
 
-find_package(Threads)
-list(APPEND EXTRA_LIBS ${CMAKE_THREAD_LIBS_INIT} )
+#find_package(Threads)
+#list(APPEND EXTRA_LIBS ${CMAKE_THREAD_LIBS_INIT} )
 
-include_directories(${CMAKE_SOURCE_DIR}/libraries/glfw/include)
+#include_directories(${CMAKE_SOURCE_DIR}/libraries/glfw/include)
 include_directories(${CMAKE_SOURCE_DIR}/libraries/glew/include)
-include_directories(${CMAKE_SOURCE_DIR}/libraries/glm)
+#include_directories(${CMAKE_SOURCE_DIR}/libraries/glm)
 
 ###############################################################################
 #
@@ -134,45 +65,24 @@ include_directories(${CMAKE_SOURCE_DIR}/libraries/glm)
 # It's cleverly puts all it's compiler and C++ feature  detection code into a
 # header that switches based on what compiler is being used (based on predefined 
 # macros).  Why can't everyone do that?
-include_directories(${CMAKE_SOURCE_DIR}/libraries/glm)
-
-###############################################################################
-#
-# Oculus C API 
-#
-# This provides all the access we need to the Oculus SDK.  For some strange 
-# reason the header files are in LibOVR/Src instead of LibOVR/Include.  
-#
-include_directories(${CMAKE_SOURCE_DIR}/libraries/OculusSDK/LibOVR/Src)
+#include_directories(${CMAKE_SOURCE_DIR}/libraries/glm)
 
 
 ###############################################################################
 # ASSIMP - Cross platform 3D model import library
-add_subdirectory(libraries/assimp)
-set_target_properties(assimp PROPERTIES FOLDER "3rdparty")
-list(APPEND EXTRA_LIBS assimp)
-
-include_directories(${CMAKE_SOURCE_DIR}/libraries/assimp/include)
-
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "If the supplementary tools for Assimp are built in addition to the library.")
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "If the test suite for Assimp is built in addition to the library..")
-###############################################################################
-# SOIL - Cross platform texture import library
-
-include_directories(${CMAKE_SOURCE_DIR}/source/renderlib/soil)
-###############################################################################
-###############################################################################
+#add_subdirectory(libraries/assimp)
+#set_target_properties(assimp PROPERTIES FOLDER "3rdparty")
+#list(APPEND EXTRA_LIBS assimp)
+#
+#include_directories(${CMAKE_SOURCE_DIR}/libraries/assimp/include)
+#
+#set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "If the supplementary tools for Assimp are built in addition to the library.")
+#set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "If the test suite for Assimp is built in addition to the library..")
 ###############################################################################
 
 
 #creates folders in the IDE's project explorer.  Better than everything
 #showing up in SOURCE FILES
-source_group("soil" FILES ${SOIL_SOURCE} ${SOIL_HEADERS})
-source_group("libpng" FILES ${LIBPNG_SOURCE} ${LIBPNG_HEADERS})
-source_group("md5" FILES source/md5.cpp source/md5.h)
-#source_group("ui" FILES ${UI_SOURCE} ${UI_HEADERS})
-#source_group("xml" FILES ${XML_SOURCE} ${XML_HEADERS})
-#source_group("midi" FILES ${MIDI_SOURCE} ${MIDI_HEADERS})
 
 # -g adds debugging symbols
 # -Wall turns on all warnings
@@ -181,24 +91,15 @@ if(APPLE)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter -std=c++11")
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -g -Wextra -Wno-ignored-qualifiers -Wno-unused-parameter")
   add_definitions(-DTARGETMAC)
-  include_directories(source/PlatformClasses/Apple/MacClasses)
-  LIST(APPEND SOURCES source/PlatformClasses/Apple/MacClasses/Platform_Mac.mm)
-  LIST(APPEND HEADERS source/PlatformClasses/Apple/MacClasses/Platform_Mac.h)
 
-#  link_directories(${CMAKE_CURRENT_SOURCE_DIR}/GLFW) #had to put here because the libs can conflict on linux
 ENDIF(APPLE)
 
 if(WIN32)
 #  include_directories(glew/include)
-  LIST(APPEND SOURCES source/PlatformClasses/Windows/Platform_Win32.cpp)
-  LIST(APPEND HEADERS source/PlatformClasses/Windows/Platform_Win32.h)
-  include_directories(source/PlatformClasses/Windows)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
   add_definitions(-D_CRT_SECURE_NO_WARNINGS) #disable sprintf deprecation
-#  link_directories(${CMAKE_CURRENT_SOURCE_DIR}/GLFW) #had to put here because the libs can conflict on linux
 ENDIF(WIN32)
 
-#SET(CMAKE_OSX_ARCHITECTURES "i386")
 
 
 
@@ -211,17 +112,13 @@ endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 
 
-#add_subdirectory(renderlib) #requires the directory to have a CMakeLists.txt file
-include_directories(source)
-include_directories(source/renderlib)
-include_directories(source/renderlib)
-include_directories(source/PlatformClasses)
-include_directories(ovr_code)
+include_directories(openclpt)
 
 
 if(APPLE)
    FIND_LIBRARY(IOKIT_LIBRARY IOKit)
    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+   FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
    FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
    FIND_LIBRARY(CORE_MIDI_LIBRARY CoreMidi)
 
@@ -238,7 +135,6 @@ if(APPLE)
       ${COCOA_LIBRARY}
       ${OPENGL_LIBRARY}
       ${CORE_MIDI_LIBRARY}
-#libglfw3.a
       )
 ENDIF(APPLE)
 
@@ -265,9 +161,6 @@ if(UNIX AND NOT APPLE)
   add_definitions(-DTARGEUNIX)
   include_directories(libraries/glew/include)
   LIST(APPEND SOURCES libraries/glew/glew.c)
-  LIST(APPEND SOURCES source/PlatformClasses/Unix/Platform_Unix.cpp)
-  LIST(APPEND HEADERS source/PlatformClasses/Unix/Platform_Unix.h)
-  include_directories(source/PlatformClasses/Unix)
 
   
 #find_package(PkgConfig REQUIRED)
@@ -298,11 +191,6 @@ if(APPLE)
   endforeach( rez )
   message("RESOURCES: " ${RESOURCES})
 
-#  foreach( shader ${SHADERS} )
-#    message(${shader})
-#    SET_TARGET_PROPERTIES(${APP_NAME} PROPERTIES RESOURCE "${shader}")
-#  endforeach( shader )
-#  message("Shaders: " ${SHADERS})
 
   foreach( asset ${ASSETS} )
     message(${asset})
@@ -322,11 +210,6 @@ if(APPLE)
       PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources/assets
       )
-#  SET_SOURCE_FILES_PROPERTIES(
-#      ${SHADERS}
-#      PROPERTIES
-#      MACOSX_PACKAGE_LOCATION Resources/Shaders
-#      )
 else()
   add_executable(${app_name} ${SOURCES} ${HEADERS} ${SHADERS} ${RESOURCES})
 endif(APPLE)

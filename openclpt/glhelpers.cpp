@@ -293,6 +293,7 @@ GLuint genFloatTexture(float *data, int width, int height) {
 
 // Debug context log printer
 void printDebugLog(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, const char* message) {
+	/*
 	char debSource[16], debType[20], debSev[5];
     if(source == GL_DEBUG_SOURCE_API)
         strcpy(debSource, "OpenGL");
@@ -328,8 +329,10 @@ void printDebugLog(unsigned int source, unsigned int type, unsigned int id, unsi
         strcpy(debSev, "Low");
 
     printf("GL: Source:%s\tType:%s\tID:%d\tSeverity:%s\tMessage:%s\n", debSource, debType, id, debSev, message);
+    */
 }
 
+/*
 // Debug context log callback
 unsigned int glDebugLogLevel = GL_DEBUG_SEVERITY_LOW;
 void __stdcall debugCallback(
@@ -360,3 +363,4 @@ void registerGlDebugLogger(unsigned int logLevel) {
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	glDebugMessageCallback(&debugCallback, NULL);
 }
+*/

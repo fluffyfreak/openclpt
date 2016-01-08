@@ -52,14 +52,14 @@ void acquireSharedOpenCLContext() {
 
    // Define OS-specific context properties and create the OpenCL context
     #if defined (__APPLE__) // Mac OS
-        CGLContextObj kCGLContext = CGLGetCurrentContext();
-        CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
+        CGLContextObj aCGLContext = CGLGetCurrentContext();
+        CGLShareGroupObj aCGLShareGroup = CGLGetShareGroup(aCGLContext);
         cl_context_properties props[] = 
         {
-            CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)kCGLShareGroup, 
+            CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)aCGLShareGroup, 
             0 
         };
-        g_CLContext = clCreateContext(props, 0,0, NULL, NULL, &clError);
+        openCLState.context = clCreateContext(props, 0,0, NULL, NULL, &clError);
     #else
         #ifndef _WIN32 // Lunix
             cl_context_properties props[] = 
@@ -69,7 +69,7 @@ void acquireSharedOpenCLContext() {
                 CL_CONTEXT_PLATFORM, (cl_context_properties)openCLState.platformId, 
                 0
             };
-            g_CLContext = clCreateContext(props, 1, &openCLState.deviceId, NULL, NULL, &clError);
+            openCLState.context = clCreateContext(props, 1, &openCLState.deviceId, NULL, NULL, &clError);
         #else // Win32
             cl_context_properties props[] = 
             {

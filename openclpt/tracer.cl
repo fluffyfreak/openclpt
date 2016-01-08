@@ -7,7 +7,8 @@
 // Maximum hit stack depth - needs to be big to avoid bias!
 // How much is enough depends on termination probability. 
 // For 0.95, 1024 is plenty.
-#define MAX_DEPTH 1024
+//#define MAX_DEPTH 1024
+#define MAX_DEPTH 4
 
 // A small number
 #define EPSILON 0.0001f 

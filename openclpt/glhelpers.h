@@ -6,8 +6,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <GL/glew.h>
-#include <GL/freeglut.h>
+#ifdef __APPLE__
+  #include <OpenGL/gl3.h>
+  #include <OpenGL/glu.h> 
+  #include <GLUT/glut.h>
+  #include <OpenGL/CGLCurrent.h>
+  #include <OpenGL/CGLTypes.h>
+  #include <OpenGL/CGLDevice.h>
+#else
+  #include <GL/glew.h>
+  #include <GL/freeglut.h>
+#endif
 
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))

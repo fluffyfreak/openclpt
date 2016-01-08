@@ -22,7 +22,7 @@ int WINDOW_HEIGHT = 512;
 #include "glhelpers.h"
 #include "obj_loader.h"
 #include "speedup_grid.h"
-#include "filter.h"
+//#include "filter.h"
 #include "bmp_handler.h"
 
 // Vector tools
@@ -75,11 +75,13 @@ int samplesPerCall = 1;
 void makeWindow(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitContextVersion(4, 2);
-	#ifdef DEBUG
-		glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
-	#else
-		glutInitContextFlags(GLUT_COMPATIBILITY_PROFILE);
+	#ifndef __APPLE__
+		#ifdef DEBUG
+			glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
+		#else
+			glutInitContextFlags(GLUT_COMPATIBILITY_PROFILE);
+		#endif
+  	  glutInitContextVersion(4, 2);
 	#endif
 
 	// Open window / full screen
@@ -93,12 +95,14 @@ void makeWindow(int argc, char** argv) {
 		glutCreateWindow(WINDOW_TITLE);
 	#endif
 
-	// Use GLEW, and make sure it imports EVERYTHING
-	glewExperimental = GL_TRUE;
-	glewInit();
+	#ifndef __APPLE__
+		// Use GLEW, and make sure it imports EVERYTHING
+		glewExperimental = GL_TRUE;
+		glewInit();
+	#endif
 
 	#ifdef DEBUG
-		registerGlDebugLogger(GL_DEBUG_SEVERITY_MEDIUM);
+	//	registerGlDebugLogger(GL_DEBUG_SEVERITY_MEDIUM);
 	#endif
 
 	// Set up OpenGL features
@@ -167,7 +171,8 @@ void initPrograms() {
 	tracer.program = clProgramFromFile("tracer.cl", defines);
 	tracer.renderKernel = clCreateKernel(tracer.program, "PathTracer", NULL);
 	tracer.clearKernel = clCreateKernel(tracer.program, "ClearImage", NULL);
-	prepareFilter(tracer.program, WINDOW_WIDTH, WINDOW_HEIGHT);
+	//TODO: ALLOW FILTERS TO RUN
+	//prepareFilter(tracer.program, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 // Initialize shaders.
@@ -198,6 +203,8 @@ void update() {
 	glutPostRedisplay();
 	glutTimerFunc(15, updateI, 0);
 
+	//TODO: convert this to GLFW or regular GLUT
+	/*
 	if(!cameraLock) {
 		HWND window = GetActiveWindow();
 		POINT p;
@@ -216,7 +223,7 @@ void update() {
 		if(fabs(angleX) + fabs(angleY) > 0.001f) {
 			cameraChanged = true;
 		}
-
+		//TODO:Get proper keyboard handling done
 		if(GetAsyncKeyState('W') != 0) {
 			camera.pos = VectorAdd(camera.pos, VectorMul(camera.front, CAM_MOVESPEED));
 			cameraChanged = true;
@@ -247,6 +254,7 @@ void update() {
 			cameraChanged = true;
 		}
 	}
+	*/
 }
 
 // Scene loader
@@ -318,8 +326,8 @@ void draw() {
 		// Prepare to run some kernels
 		cl_int numPixels = WINDOW_WIDTH * WINDOW_HEIGHT;
 
-		cl_uint workSize[3] = {numPixels, 0, 0};
-		cl_uint workgroupSize[3] = {256, 0, 0};
+		cl_int workSize[3] = {numPixels, 0, 0};
+		cl_int workgroupSize[3] = {256, 0, 0};
 
 		// Send scene
 		if(scene.onDevice == false) {
@@ -423,6 +431,8 @@ void draw() {
 	//////////////////////// PART 1.5: FILTER ///////////////////////////////
 
 	GLuint displayTexture;
+	//TODO: ALLOW FILTERS TO RUN
+	/*
 	if(runFilter) {
 		if(recalcFilter) {
 			float cameraPos[4];
@@ -458,6 +468,8 @@ void draw() {
 	else {
 		displayTexture = displayShader.texture[tracer.targetBufferIndex];
 	}
+	*/
+	displayTexture = displayShader.texture[tracer.targetBufferIndex];
 
 	//////////////////////// PART 2: DISPLAY ////////////////////////////////
 
@@ -619,7 +631,11 @@ void handleKeypress(unsigned char k, int x, int y) {
 		break;
 
 		case 'p': // Neat for debugging. Wait a second on 'p'.
+		#ifdef __APPLE__
+			sleep(1000);
+		#else
 			Sleep(1000);
+		#endif
 		break;
 	}
 }
