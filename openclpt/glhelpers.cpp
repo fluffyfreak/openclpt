@@ -27,8 +27,11 @@
 GLuint makeBO(GLenum type, void* data, GLsizei size, int accessFlags) {
 	GLuint bo;
 	glGenBuffers(1, &bo);
+	checkGLErrors();
 	glBindBuffer(type, bo);
+	checkGLErrors();
 	glBufferData(type, size, data, accessFlags);
+	checkGLErrors();
 	return(bo);
 }
 
@@ -45,6 +48,7 @@ GLuint makeTextureBuffer(int w, int h, GLenum format, GLint internalFormat) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_FLOAT, NULL);
 
+	checkGLErrors();
 	return buffertex;
 }
 
@@ -89,6 +93,7 @@ GLuint loadShader(GLenum type, char *file) {
 		fgetc(stdin);
 		exit(-1);
 	}
+	checkGLErrors();
 	
 	return shader;
 }
@@ -111,6 +116,7 @@ GLuint makeShaderProgram(GLuint vertexShader, GLuint fragmentShader) {
 		fgetc(stdin);
 		exit(-1);
 	}
+	checkGLErrors();
 	
 	return program;
 }
@@ -257,6 +263,7 @@ GLuint loadTexture(const char *filename) {
 	// Release buffer.
 	free(pixels);
 
+	checkGLErrors();
 	return texture;
 }
 
@@ -288,6 +295,7 @@ GLuint genFloatTexture(float *data, int width, int height) {
 		data
 	);
 
+	checkGLErrors();
 	return texture;
 }
 
@@ -364,3 +372,198 @@ void registerGlDebugLogger(unsigned int logLevel) {
 	glDebugMessageCallback(&debugCallback, NULL);
 }
 */
+std::string getOpenGLInfo()
+{
+	std::stringstream s;
+	s << "GL_VENDOR: " << (const char*)glGetString(GL_VENDOR) << std::endl;
+	s << "GL_RENDERER: " << glGetString(GL_RENDERER) << std::endl;
+	s << "GL_VERSION: " << glGetString(GL_VERSION) << std::endl;
+	s << "GL_SHADING_LANGUAGE_VERSION: " <<
+		glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+	checkGLErrors();
+	return s.str();
+}
+
+int checkGLErrors()
+{
+	int errCount = 0;
+	for (GLenum currError = glGetError();
+	currError != GL_NO_ERROR;
+	currError = glGetError())
+	{
+		//Do something with `currError`.
+		std::cout << "GL ERROR: " << glEnumToString(currError) << std::endl;
+		std::cout.flush();
+
+		++errCount;
+	}
+
+	return errCount;
+}
+
+std::string glEnumToString(GLenum e)
+{
+	std::string str = "UNKNOWN";
+	switch (e)
+	{
+		//Data Types
+	case GL_FLOAT:
+		str = "GL_FLOAT";
+		break;
+	case GL_FLOAT_VEC2:
+		str = "GL_FLOAT_VEC2";
+		break;
+	case GL_FLOAT_VEC3:
+		str = "GL_FLOAT_VEC3";
+		break;
+	case GL_FLOAT_VEC4:
+		str = "GL_FLOAT_VEC4";
+		break;
+	case GL_FLOAT_MAT2:
+		str = "GL_FLOAT_MAT2";
+		break;
+	case GL_FLOAT_MAT3:
+		str = "GL_FLOAT_MAT3";
+		break;
+	case GL_FLOAT_MAT4:
+		str = "GL_FLOAT_MAT4";
+		break;
+	case GL_FLOAT_MAT2x3:
+		str = "GL_FLOAT_MAT2x3";
+		break;
+	case GL_FLOAT_MAT2x4:
+		str = "GL_FLOAT_MAT2x4";
+		break;
+	case GL_FLOAT_MAT3x2:
+		str = "GL_FLOAT_MAT3x2";
+		break;
+	case GL_FLOAT_MAT3x4:
+		str = "GL_FLOAT_MAT3x4";
+		break;
+	case GL_FLOAT_MAT4x2:
+		str = "GL_FLOAT_MAT4x2";
+		break;
+	case GL_FLOAT_MAT4x3:
+		str = "GL_FLOAT_MAT4x3";
+		break;
+	case GL_INT:
+		str = "GL_INT";
+		break;
+	case GL_INT_VEC2:
+		str = "GL_INT_VEC2";
+		break;
+	case GL_INT_VEC3:
+		str = "GL_INT_VEC3";
+		break;
+	case GL_INT_VEC4:
+		str = "GL_INT_VEC4";
+		break;
+	case GL_UNSIGNED_INT:
+		str = "GL_UNSIGNED_INT";
+		break;
+	case GL_UNSIGNED_INT_VEC2:
+		str = "GL_UNSIGNED_INT_VEC2";
+		break;
+	case GL_UNSIGNED_INT_VEC3:
+		str = "GL_UNSIGNED_INT_VEC3";
+		break;
+	case GL_UNSIGNED_INT_VEC4:
+		str = "GL_UNSIGNED_INT_VEC4";
+		break;
+
+		//Error Codes
+	case GL_NO_ERROR:
+		str = "GL_NO_ERROR";
+		break;
+	case GL_INVALID_ENUM:
+		str = "GL_INVALID_ENUM";
+		break;
+	case GL_INVALID_VALUE:
+		str = "GL_INVALID_VALUE";
+		break;
+	case GL_INVALID_OPERATION:
+		str = "GL_INVALID_OPERATION";
+		break;
+	case GL_INVALID_FRAMEBUFFER_OPERATION:
+		str = "GL_INVALID_FRAMEBUFFER_OPERATION";
+		break;
+	case GL_OUT_OF_MEMORY:
+		str = "GL_OUT_OF_MEMORY";
+		break;
+
+
+
+
+	case GL_SAMPLER_2D:
+		str = "GL_SAMPLER_2D";
+		break;
+
+	case GL_SAMPLER_3D:
+		str = "GL_SAMPLER_3D";
+		break;
+
+	case GL_SAMPLER_CUBE:
+		str = "GL_SAMPLER_CUBE";
+		break;
+
+	case GL_SAMPLER_2D_SHADOW:
+		str = "GL_SAMPLER_2D_SHADOW";
+		break;
+
+	case GL_SAMPLER_2D_ARRAY:
+		str = "GL_SAMPLER_2D_ARRAY";
+		break;
+
+	case GL_SAMPLER_2D_ARRAY_SHADOW:
+		str = "GL_SAMPLER_2D_ARRAY_SHADOW";
+		break;
+
+	case GL_INT_SAMPLER_2D:
+		str = "GL_INT_SAMPLER_2D";
+		break;
+
+	case GL_INT_SAMPLER_3D:
+		str = "GL_INT_SAMPLER_3D";
+		break;
+
+	case GL_INT_SAMPLER_CUBE:
+		str = "GL_INT_SAMPLER_CUBE";
+		break;
+
+	case GL_INT_SAMPLER_2D_ARRAY:
+		str = "GL_INT_SAMPLER_2D_ARRAY";
+		break;
+
+	case GL_UNSIGNED_INT_SAMPLER_2D:
+		str = "GL_UNSIGNED_INT_SAMPLER_2D";
+		break;
+
+	case GL_UNSIGNED_INT_SAMPLER_3D:
+		str = "GL_UNSIGNED_INT_SAMPLER_3D";
+		break;
+
+	case GL_UNSIGNED_INT_SAMPLER_CUBE:
+		str = "GL_UNSIGNED_INT_SAMPLER_CUBE";
+		break;
+
+		//Buffer enums
+	case GL_ARRAY_BUFFER:
+		str = "GL_ARRAY_BUFFER";
+		break;
+	case GL_ELEMENT_ARRAY_BUFFER:
+		str = "GL_ELEMENT_ARRAY_BUFFER";
+		break;
+	case GL_STATIC_DRAW:
+		str = "GL_STATIC_DRAW";
+		break;
+	case GL_DYNAMIC_DRAW:
+		str = "GL_DYNAMIC_DRAW";
+		break;
+	case GL_STREAM_DRAW:
+		str = "GL_STREAM_DRAW";
+		break;
+	}
+
+	return str;
+}

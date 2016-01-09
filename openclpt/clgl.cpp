@@ -4,6 +4,7 @@
 
 #include "clgl.h"
 #include "glhelpers.h"
+#include <assert.h>
 
 #define DEBUG
 
@@ -41,10 +42,43 @@ void acquireSharedOpenCLContext() {
 			continue;
 		}
 
-		cl_device_id devices[1];
-		clGetDeviceIDs(platform_ids[i], CL_DEVICE_TYPE_GPU, 1, devices, NULL);
-		openCLState.platformId = platform_ids[i];
-		openCLState.deviceId = devices[0];
+		cl_device_id* devices = (cl_device_id*)malloc(device_count*sizeof(cl_device_id));
+		clGetDeviceIDs(platform_ids[i], CL_DEVICE_TYPE_GPU, device_count, devices, NULL);
+
+		if (device_count > 1)
+		{
+			//FIXME: Hack so you can choose a GPU that is also being used for opengl when there are
+			//multiple GPUs.  
+			//Wish this could be automatic
+			printf("Please choose a device num:\n");
+			for (int d = 0; d < device_count; ++d)
+			{
+				cl_ulong mem_size;
+				char* value;
+				size_t valueSize;
+				// print device name
+				clGetDeviceInfo(devices[d], CL_DEVICE_NAME, 0, NULL, &valueSize);
+				value = (char*)malloc(valueSize);
+				clGetDeviceInfo(devices[d], CL_DEVICE_NAME, valueSize, value, NULL);
+				printf("Device [%d]: %s\n", d, value);
+				free(value);
+			}
+			char buff[2];
+			buff[0] = getc(stdin);
+			buff[1] = 0;
+			int idx = atoi(buff);
+			assert(idx >= 0 && idx < device_count);
+			openCLState.platformId = platform_ids[i];
+			openCLState.deviceId = devices[idx];
+		}
+		else
+		{
+			openCLState.platformId = platform_ids[i];
+			openCLState.deviceId = devices[0];
+		}
+
+		free(devices);
+
 		break;
 	}
 
@@ -88,6 +122,37 @@ void acquireSharedOpenCLContext() {
 	// If debug info is desired, print some useful information
 	#ifdef DEBUG
 		cl_ulong mem_size;
+		char* value;
+		size_t valueSize;
+		// print device name
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_NAME, 0, NULL, &valueSize);
+		value = (char*)malloc(valueSize);
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_NAME, valueSize, value, NULL);
+		printf("Device: %s\n", value);
+		free(value);
+
+		// print hardware device version
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_VERSION, 0, NULL, &valueSize);
+		value = (char*)malloc(valueSize);
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_VERSION, valueSize, value, NULL);
+		printf("Hardware version: %s\n",  value);
+		free(value);
+
+		// print software driver version
+		clGetDeviceInfo(openCLState.deviceId, CL_DRIVER_VERSION, 0, NULL, &valueSize);
+		value = (char*)malloc(valueSize);
+		clGetDeviceInfo(openCLState.deviceId, CL_DRIVER_VERSION, valueSize, value, NULL);
+		printf("Software version: %s\n", value);
+		free(value);
+
+		// print c version supported by compiler for device
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_OPENCL_C_VERSION, 0, NULL, &valueSize);
+		value = (char*)malloc(valueSize);
+		clGetDeviceInfo(openCLState.deviceId, CL_DEVICE_OPENCL_C_VERSION, valueSize, value, NULL);
+		printf("OpenCL C version: %s\n", value);
+		free(value);
+
+
 		clGetDeviceInfo (openCLState.deviceId, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(mem_size), &mem_size, NULL);
 		printf("Global memory: %u kb\n", (unsigned int)(mem_size/1024));
 	
@@ -236,7 +301,7 @@ void clRunKernel(cl_kernel kernel, const size_t minWorkSize[3], const size_t wor
 		dimensions = 1;
 	}
 
-	size_t workSize[3];
+	size_t workSize[3] = { 0,0,0 };
 	for(int i = 0; i < dimensions; i++) {
 		workSize[i] = adjustWorkSize(minWorkSize[i], workgroupSize[i]);
 	}
@@ -250,5 +315,13 @@ void clRunKernel(cl_kernel kernel, const size_t minWorkSize[3], const size_t wor
 	if(clErr != CL_SUCCESS) {
 		printf("Failed to finish kernel: %s\n", errorToString(clErr));
 		fgetc(stdin);
+	}
+}
+
+void setKernelArg(cl_kernel kernel, cl_uint arg_index, size_t arg_size, const void* arg_value)
+{
+	cl_int clErr = clSetKernelArg(kernel, arg_index, arg_size, arg_value);
+	if (clErr != CL_SUCCESS) {
+		printf("Failed to set kernel argument: %s\n", errorToString(clErr));
 	}
 }

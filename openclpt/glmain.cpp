@@ -73,11 +73,12 @@ int samplesPerCall = 1;
 
 // Make a window for doing OpenGL
 void makeWindow(int argc, char** argv) {
-	glutInit(&argc, argv);
+	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	#ifndef __APPLE__
 		#ifdef DEBUG
-			glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
+			//glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
+			glutInitContextFlags(GLUT_CORE_PROFILE);
 		#else
 			glutInitContextFlags(GLUT_COMPATIBILITY_PROFILE);
 		#endif
@@ -95,11 +96,16 @@ void makeWindow(int argc, char** argv) {
 		glutCreateWindow(WINDOW_TITLE);
 	#endif
 
+	std::string glinfo  = getOpenGLInfo();
+	std::cout << "OpenGL Info:" << std::endl << glinfo << std::endl;
+
+	checkGLErrors();
 	#ifndef __APPLE__
 		// Use GLEW, and make sure it imports EVERYTHING
 		glewExperimental = GL_TRUE;
 		glewInit();
 	#endif
+	checkGLErrors();
 
 	#ifdef DEBUG
 	//	registerGlDebugLogger(GL_DEBUG_SEVERITY_MEDIUM);
@@ -111,6 +117,7 @@ void makeWindow(int argc, char** argv) {
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	checkGLErrors();
 }
 
 // Functions that glut calls for us
@@ -156,7 +163,11 @@ void initObjects() {
 	for(int i = 0; i < 2; i++) {
 		displayShader.texture[i] = makeTextureBuffer(WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGBA, GL_RGBA32F);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, zeroPixels);
-		tracer.renderBuffer[i] = clCreateFromGLTexture2D(clContext(), CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0, displayShader.texture[i], 0);
+		cl_int clErr;
+		tracer.renderBuffer[i] = clCreateFromGLTexture2D(clContext(), CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0, displayShader.texture[i], &clErr);
+		if (clErr != CL_SUCCESS) {
+			printf("Failed to create opengl shared texture: %s\n", errorToString(clErr));
+		}
 	}
 
 	// Start writing to buffer 0
@@ -362,14 +373,14 @@ void draw() {
 			free(randomData);
 
 			// Set up static arguments
-			clSetKernelArg(tracer.renderKernel, 2, sizeof(cl_mem), &randBuffer);
-			clSetKernelArg(tracer.renderKernel, 3, sizeof(cl_mem), &scene.sceneBuffer);
-			clSetKernelArg(tracer.renderKernel, 4, sizeof(cl_mem), &scene.offsetBuffer);
+			setKernelArg(tracer.renderKernel, 2, sizeof(cl_mem), &randBuffer);
+			setKernelArg(tracer.renderKernel, 3, sizeof(cl_mem), &scene.sceneBuffer);
+			setKernelArg(tracer.renderKernel, 4, sizeof(cl_mem), &scene.offsetBuffer);
 		}
 
 		// Potentially clear input buffer
 		if(cameraChanged) {
-			clSetKernelArg(tracer.clearKernel, 0, sizeof(cl_mem), &tracer.renderBuffer[1 - tracer.targetBufferIndex]);
+			setKernelArg(tracer.clearKernel, 0, sizeof(cl_mem), &tracer.renderBuffer[1 - tracer.targetBufferIndex]);
 			clRunKernel(tracer.clearKernel, workSize, workgroupSize);
 			cameraChanged = false;
 			tracer.sampleCount = 0;
@@ -388,15 +399,15 @@ void draw() {
 		}
 
 		// Set up arguments
-		clSetKernelArg(tracer.renderKernel, 0, sizeof(cl_mem), &tracer.renderBuffer[1 - tracer.targetBufferIndex]);
-		clSetKernelArg(tracer.renderKernel, 1, sizeof(cl_mem), &tracer.renderBuffer[tracer.targetBufferIndex]);
+		setKernelArg(tracer.renderKernel, 0, sizeof(cl_mem), &tracer.renderBuffer[1 - tracer.targetBufferIndex]);
+		setKernelArg(tracer.renderKernel, 1, sizeof(cl_mem), &tracer.renderBuffer[tracer.targetBufferIndex]);
 
 		float cameraPos[4];
 		cameraPos[0] = -camera.pos.x;
 		cameraPos[1] = -camera.pos.y;
 		cameraPos[2] = -camera.pos.z;
 		cameraPos[3] = 0.0f;
-		clSetKernelArg(tracer.renderKernel, 5, sizeof(cl_float4), &cameraPos);
+		setKernelArg(tracer.renderKernel, 5, sizeof(cl_float4), &cameraPos);
 
 		Vector vectorUp = MakeVector(0, 1, 0);
 		Quaternion rotZ = RotationQuaternion(-camera.elevation, VectorNorm(VectorCross(VectorNorm(camera.front), vectorUp)));
@@ -407,7 +418,7 @@ void draw() {
 		cameraUp[1] = cameraUpV.y;
 		cameraUp[2] = cameraUpV.z;
 		cameraUp[3] = 0.0f;
-		clSetKernelArg(tracer.renderKernel, 6, sizeof(cl_float4), &cameraUp);
+		setKernelArg(tracer.renderKernel, 6, sizeof(cl_float4), &cameraUp);
 
 		float cameraFront[4];
 		Vector cameraFrontV = VectorNorm(TransformVector(RotationMatrixFromQuaternion(rotZ), camera.front));
@@ -415,7 +426,7 @@ void draw() {
 		cameraFront[1] = cameraFrontV.y;
 		cameraFront[2] = cameraFrontV.z;
 		cameraFront[3] = 0.0f;
-		clSetKernelArg(tracer.renderKernel, 7, sizeof(cl_float4), &cameraFront);
+		setKernelArg(tracer.renderKernel, 7, sizeof(cl_float4), &cameraFront);
 
 		// Trace an iteration
 		clRunKernel(tracer.renderKernel, workSize, workgroupSize);
@@ -677,11 +688,18 @@ int main(int argc, char** argv) {
 
 	loadScene(sceneFile, matFile, gridExtent);
 	makeWindow(argc, argv);
+	checkGLErrors();
+	checkGLErrors();
 	acquireSharedOpenCLContext();
+	checkGLErrors();
 	initObjects();
+	checkGLErrors();
 	initPrograms();
+	checkGLErrors();
 	initShaders();
+	checkGLErrors();
 	setupGlutCallbacks();
+	checkGLErrors();
 	glutMainLoop();
 	releaseSharedOpenCLContext();
 }

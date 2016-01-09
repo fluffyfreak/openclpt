@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <sstream>
+#include <iostream>
 #ifdef __APPLE__
   #include <OpenGL/gl3.h>
   #include <OpenGL/glu.h> 
@@ -30,5 +33,9 @@ void registerGlDebugLogger(unsigned int logLevel);
 char* loadFile(char* name);
 // Matrix lookatMatrix(Vector eye, Vector center, Vector up);
 GLuint genFloatTexture(float *data, int width, int height);
+
+std::string getOpenGLInfo();
+int checkGLErrors();
+std::string glEnumToString(GLenum e);
 
 #endif

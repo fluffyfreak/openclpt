@@ -35,5 +35,6 @@ cl_context clContext();
 cl_program clProgramFromFile(char* fileName, char* defines);
 void clRunKernel(cl_kernel kernel, const size_t minWorkSize[3], const size_t workgroupSize[3]);
 const char* errorToString(cl_int error);
+void setKernelArg(cl_kernel kernel, cl_uint arg_index, size_t arg_size, const void* arg_value);
 
 #endif
