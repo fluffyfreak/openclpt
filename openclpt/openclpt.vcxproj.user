@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>128 128 64 kitbox.obj matlib.mat 1 camera_null.cam</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>256 256 128 coolbox.obj matlib.mat 5 camera_complex.cam</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

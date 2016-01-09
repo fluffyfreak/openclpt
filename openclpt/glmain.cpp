@@ -67,7 +67,7 @@ void handleKeypress(unsigned char k, int x, int y);
 cl_mem randBuffer;
 
 // How many samples per kernel invocation
-int samplesPerCall = 1;
+int samplesPerCall = 30000;
 
 //////////////////////////////// INIT FUNCTIONS ////////////////////////////////
 

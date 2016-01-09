@@ -7,8 +7,7 @@
 // Maximum hit stack depth - needs to be big to avoid bias!
 // How much is enough depends on termination probability. 
 // For 0.95, 1024 is plenty.
-//#define MAX_DEPTH 1024
-#define MAX_DEPTH 4
+#define MAX_DEPTH 1024
 
 // A small number
 #define EPSILON 0.0001f 
@@ -384,13 +383,15 @@ inline float3 shade(
     
     // Go backwards from the end ray and shade
 	float3 radiance = (float3)(0, 0, 0);
-  //FIXME: Crash somewhere in here
     for(int backwards_ray = depth-1; backwards_ray >= 0; backwards_ray--) {
         radiance = simple_brdf_shade(
             &scene[hit_objects[backwards_ray]].brdf_data,
             radiance
         );
-		radiance = radiance * ray_probabilities[backwards_ray];
+    //FIXME: Crash somewhere in here
+		radiance = radiance;// * ray_probabilities[backwards_ray];
+    /*
+    */
     }
 
     return radiance;
@@ -434,8 +435,8 @@ __kernel void PathTracer(
 		int hit_objects[MAX_DEPTH];
 	
 		// Trace
-		//float3 result = (float3)(0, 0, 0);
-		float3 result = (float3)(1, 0, 0);
+		float3 result = (float3)(0, 0, 0);
+		//float3 result = (float3)(1, 0, 0);
 		ray trace_ray;
 		for(int i = 0; i < SAMPLES; i++) {
 			// Generate ray with fuzzed pixel coordinates for AA.
