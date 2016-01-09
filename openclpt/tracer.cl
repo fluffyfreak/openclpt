@@ -389,7 +389,9 @@ inline float3 shade(
             radiance
         );
     //FIXME: Crash somewhere in here
-		radiance = radiance;// * ray_probabilities[backwards_ray];
+        if(backwards_ray >= MAX_DEPTH) backwards_ray = MAX_DEPTH -1;
+        if(backwards_ray < 0) backwards_ray = 0; 
+		radiance = radiance * ray_probabilities[backwards_ray];
     /*
     */
     }
