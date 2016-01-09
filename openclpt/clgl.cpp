@@ -117,8 +117,12 @@ void acquireSharedOpenCLContext() {
     #endif
 
 	// Create command queue
-	openCLState.queue = clCreateCommandQueue(openCLState.context, openCLState.deviceId, 0, &clError);
-
+	cl_int clErr;
+	openCLState.queue = clCreateCommandQueue(openCLState.context, openCLState.deviceId, 0, &clErr);
+	if (clErr != CL_SUCCESS) {
+		printf("Command Queue Error: %s\n", errorToString(clErr));
+		fgetc(stdin);
+	}
 	// If debug info is desired, print some useful information
 	#ifdef DEBUG
 		cl_ulong mem_size;
@@ -301,7 +305,7 @@ void clRunKernel(cl_kernel kernel, const size_t minWorkSize[3], const size_t wor
 		dimensions = 1;
 	}
 
-	size_t workSize[3] = { 0,0,0 };
+	size_t workSize[3];// = { 0,0,0 };
 	for(int i = 0; i < dimensions; i++) {
 		workSize[i] = adjustWorkSize(minWorkSize[i], workgroupSize[i]);
 	}

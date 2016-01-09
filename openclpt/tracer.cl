@@ -384,6 +384,7 @@ inline float3 shade(
     
     // Go backwards from the end ray and shade
 	float3 radiance = (float3)(0, 0, 0);
+  //FIXME: Crash somewhere in here
     for(int backwards_ray = depth-1; backwards_ray >= 0; backwards_ray--) {
         radiance = simple_brdf_shade(
             &scene[hit_objects[backwards_ray]].brdf_data,
@@ -427,12 +428,14 @@ __kernel void PathTracer(
 		random_state randstate;
 		seed_random(&randstate, randInit[i]);
 
+
 		// Prepare hit stack
 		float ray_probabilities[MAX_DEPTH];
 		int hit_objects[MAX_DEPTH];
 	
 		// Trace
-		float3 result = (float3)(0, 0, 0);
+		//float3 result = (float3)(0, 0, 0);
+		float3 result = (float3)(1, 0, 0);
 		ray trace_ray;
 		for(int i = 0; i < SAMPLES; i++) {
 			// Generate ray with fuzzed pixel coordinates for AA.
