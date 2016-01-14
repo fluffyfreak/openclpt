@@ -649,6 +649,7 @@ void handleKeypress(unsigned char k, int x, int y) {
 		#endif
 		break;
 	}
+	printf("userScale: %3.6f\n", userScale);
 }
 
 // Set things up and run
